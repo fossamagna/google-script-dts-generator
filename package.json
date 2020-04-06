@@ -5,6 +5,14 @@
   "main": "index.ts",
   "author": "fossamagna",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fossamagna/google-script-dts-generator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fossamagna/google-script-dts-generator/issues"
+  },
+  "homepage": "https://github.com/fossamagna/google-script-dts-generator#readme",
   "dependencies": {
     "commander": "^5.0.0",
     "dts-dom": "^3.6.0",
