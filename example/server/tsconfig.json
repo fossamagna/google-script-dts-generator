@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2018"],
+    "outDir": "./dist",
+    "target": "es2018",
+    "module": "commonjs",
+    "declaration": true,
+    "sourceMap": true,
+    "strict": true
+  },
+  "compileOnSave": true
+}

@@ -1,0 +1,14 @@
+{
+  "name": "example-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "dts-gen": "node ../../dist/bin/dts-gen.js -s . -o ../client"
+  },
+  "author": "fossamagna",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^3.8.3"
+  }
+}
