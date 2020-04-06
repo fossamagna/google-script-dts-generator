@@ -75,5 +75,5 @@ $ yarn add google-script-dts-generator
 $ google-script-dts-generator -s server -o client
 ```
 
-[npm-image]: https://badge.fury.io/js/google-script-run-dts-generator
-[npm-url]: https://npmjs.org/package/google-script-run-dts-generator
+[npm-image]: https://badge.fury.io/js/google-script-dts-generator.svg
+[npm-url]: https://npmjs.org/package/google-script-dts-generator
