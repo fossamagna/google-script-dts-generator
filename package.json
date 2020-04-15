@@ -34,5 +34,8 @@
   },
   "bin": {
     "google-script-dts-generator": "dist/bin/dts-gen.js"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
