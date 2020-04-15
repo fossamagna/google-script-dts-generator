@@ -2,7 +2,7 @@
   "name": "google-script-dts-generator",
   "version": "1.0.0",
   "description": "Generate TypeScript declaration (.d.ts) files for google.script(Client-side API).",
-  "main": "index.ts",
+  "main": "dist/index.js",
   "author": "fossamagna",
   "license": "MIT",
   "repository": {
@@ -32,5 +32,7 @@
     "build": "tsc",
     "test": "jest --coverage"
   },
-  "bin": "dist/bin/dts"
+  "bin": {
+    "google-script-dts-generator": "dist/bin/dts-gen.js"
+  }
 }
