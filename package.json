@@ -21,12 +21,12 @@
     "typescript": "^3.8.3"
   },
   "devDependencies": {
-    "@types/glob": "^7.1.1",
-    "@types/jest": "^25.1.4",
-    "@types/node": "^12.12.31",
-    "jest": "^25.2.4",
-    "ts-jest": "^25.3.0",
-    "ts-node": "^8.8.1"
+    "@types/glob": "7.1.1",
+    "@types/jest": "25.1.4",
+    "@types/node": "12.12.31",
+    "jest": "25.2.4",
+    "ts-jest": "25.3.0",
+    "ts-node": "8.8.1"
   },
   "scripts": {
     "build": "tsc",
