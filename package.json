@@ -26,7 +26,7 @@
     "@types/node": "12.12.42",
     "jest": "26.0.1",
     "ts-jest": "26.0.0",
-    "ts-node": "8.10.1"
+    "ts-node": "8.10.2"
   },
   "scripts": {
     "build": "tsc",
