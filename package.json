@@ -25,7 +25,7 @@
     "@types/jest": "26.0.0",
     "@types/node": "12.12.42",
     "jest": "26.1.0",
-    "ts-jest": "26.0.0",
+    "ts-jest": "26.1.1",
     "ts-node": "8.10.2"
   },
   "scripts": {
