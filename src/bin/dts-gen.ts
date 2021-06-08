@@ -16,7 +16,8 @@ function collect(value: string, previous: string[]) {
   return previous.concat([value]);
 }
 
-const sources = program.sourcesDir as string[];
+const options = program.opts();
+const sources = options.sourcesDir as string[];
 const root = path.resolve(deepestSharedRoot(sources))
 const configPath = findConfig(root)
 if (!configPath) {
@@ -26,5 +27,5 @@ if (!configPath) {
 
 const patterns = sources.map(arg => path.join(arg, '**/*.ts'));
 const dts = generate(globSync(patterns), configPath);
-const dtsFilePath = path.join(program.outputDir, 'google.script.d.ts');
+const dtsFilePath = path.join(options.outputDir, 'google.script.d.ts');
 fs.writeFileSync(dtsFilePath, dts, { encoding: 'utf8' });
