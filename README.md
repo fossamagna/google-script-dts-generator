@@ -4,7 +4,10 @@ Generate TypeScript declaration (.d.ts) file for [google.script.run](https://dev
 
 ## About
 
-When `google-script-dts-generator` detect a function assignment expression to `global` object. generate the corresponding client-side TypeScript declaration (.d.ts) for Apps Script function.
+`google-script-dts-generator` generates a client-side TypeScript declaration (.d.ts) for the Apps Script function from a server-side TypeScript source that matchs the following conditions:
+
+* function assignment expressions to `global` object. 
+* named export functions (when using `namedExportsFiles` option)
 
 ## Example
 
@@ -20,7 +23,7 @@ global.echo = (message: string) => {
 generate:
 
 ```sh
-$ google-script-dts-generator -s server/ -o client/
+$ google-script-dts-generator --sourcesDir server/ --outputDir client/
 ```
 
 generated `google-script.d.ts`:
@@ -72,7 +75,37 @@ $ yarn add google-script-dts-generator
 ### CLI
 
 ```sh
-$ google-script-dts-generator -s server -o client
+$ google-script-dts-generator --sourcesDir server --outputDir client
+```
+
+### Options
+
+* [`--sourcesDir <sources>`](#--sourcesDir-sources)
+* [`--outputDir <outputDir>`](#--outputDir-outputDir)
+* [`--namedExportsFiles <glob>`](#--namedExportsFiles-glob)
+
+#### `--sourcesDir <sources>`
+
+Path to TypeScript sources directory.
+
+```sh
+$ google-script-dts-generator --outputDir ./example/client --sourcesDir ./example/server
+```
+
+#### `--outputDir <outputDir>`
+
+Path to a generated `d.ts` file output directory.
+
+```sh
+$ google-script-dts-generator --outputDir ./example/client --sourcesDir ./example/server
+```
+
+#### `--namedExportsFiles <glob>`
+
+A glob path pattern to generates a client-side TypeScript declaration (.d.ts) from named exports.
+
+```sh
+$ google-script-dts-generator --outputDir ./example/client --sourcesDir ./example/server --namedExportsFiles './example/server/**/*.ts'
 ```
 
 [npm-image]: https://badge.fury.io/js/google-script-dts-generator.svg

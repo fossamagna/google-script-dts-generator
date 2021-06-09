@@ -7,6 +7,7 @@ class Context {
   readonly checker: ts.TypeChecker;
   methods: dom.ObjectTypeMember[] = [];
   _interfaces: Map<string, dom.InterfaceDeclaration> = new Map();
+  namedExportsFiles: string[] = [];
   
   registerInterface(name: string, itrf: dom.InterfaceDeclaration) {
     if (this._interfaces.has(name)) {
@@ -19,8 +20,13 @@ class Context {
     return this._interfaces.values();
   }
 
-  constructor(checker: ts.TypeChecker) {
+  isNameExportTarget(node: ts.Node): boolean {
+    return this.namedExportsFiles.includes(node.getSourceFile().fileName);
+  }
+
+  constructor(checker: ts.TypeChecker, namedExportsFiles: string[]) {
     this.checker = checker;
+    this.namedExportsFiles = namedExportsFiles;
   }
 }
 
@@ -39,7 +45,45 @@ const createVisitor = (program: ts.Program, context: Context) => {
         methods.push(createDomMethod(name, callSignature, context));
       }
     }
+    if (context.isNameExportTarget(node)) {
+      if (ts.isVariableStatement(node) && isNamedExport(node.modifiers)) {
+        node.declarationList.declarations.forEach(declaration => {
+          const name = declaration.name.getText();
+          const initializer = declaration.initializer!;
+          const type = checker.getTypeAtLocation(initializer);
+          const [callSignature] = type.getCallSignatures();
+          if (callSignature) {
+            methods.push(createDomMethod(name, callSignature, context));
+          }
+        });
+      }
+      if (ts.isFunctionDeclaration(node) && isNamedExport(node.modifiers)) {
+        const name = node.name?.getText();
+        if (!name) {
+          console.warn(`Name not found: ${node.getText()}`);
+          return context;
+        }
+        const type = checker.getTypeAtLocation(node);
+        const [callSignature] = type.getCallSignatures();
+        if (callSignature) {
+          methods.push(createDomMethod(name, callSignature, context));
+        }
+      }
+      if (ts.isNamedExports(node)) {
+        node.elements.forEach(element => {
+          const name = element.name.getText();
+          const type = checker.getTypeAtLocation(element);
+          const [callSignature] = type.getCallSignatures();
+          if (callSignature) {
+            methods.push(createDomMethod(name, callSignature, context));
+          }
+        });
+      }
+    }
     context.methods.push(...methods);
+
+    node.getChildren().forEach(child => visitor(child));
+
     return context;
   }
   return visitor;
@@ -51,7 +95,7 @@ const createDomMethod = (name: string, callSignature: ts.Signature, context: Con
   return method;
 }
 
-export const generate = (filenames: string[], configPath: string): string =>  {
+export const generate = (filenames: string[], configPath: string, namedExportsFiles: string[]): string =>  {
   const result = ts.readConfigFile(configPath, ts.sys.readFile);
   const config = ts.parseJsonConfigFileContent(
     result.config,
@@ -61,7 +105,7 @@ export const generate = (filenames: string[], configPath: string): string =>  {
     configPath
   );
   const program = ts.createProgram(filenames, config.options);
-  const context = new Context(program.getTypeChecker());
+  const context = new Context(program.getTypeChecker(), namedExportsFiles);
   const visitor = createVisitor(program, context);
   filenames.forEach(filename => {
     const source = program.getSourceFile(filename);
@@ -129,6 +173,11 @@ const isGlobalAssignmentExpression = (node: ts.Node): node is ts.ExpressionState
     return ts.isPropertyAccessExpression(left) && left.expression.getText() === 'global';
   }
   return false;
+}
+
+const isNamedExport = (modifiers?: ts.ModifiersArray) => {
+  return modifiers?.some(modfifier => modfifier.kind === ts.SyntaxKind.ExportKeyword) 
+    && modifiers?.every(modfifier => modfifier.kind !== ts.SyntaxKind.DefaultKeyword)
 }
 
 function toDomParameter(symbol: ts.Symbol, context: Context): dom.Parameter {
