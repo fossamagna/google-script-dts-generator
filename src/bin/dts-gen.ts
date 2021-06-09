@@ -8,8 +8,9 @@ import { findConfig, globSync, deepestSharedRoot } from '../util';
 
 program
   .version(require('../../package.json').version)
-  .requiredOption('-s --sourcesDir <sources>', 'sources directory', collect, [])
-  .requiredOption('-o --outputDir <outputDir>', 'dts file output directory')
+  .requiredOption('-s, --sourcesDir <sources>', 'sources directory', collect, [])
+  .requiredOption('-o, --outputDir <outputDir>', 'dts file output directory')
+  .option('--namedExportsFiles <glob>', 'A glob path pattern to generates a client-side TypeScript declaration (.d.ts) from named exports', collect, [])
   .parse(process.argv);
 
 function collect(value: string, previous: string[]) {
@@ -18,6 +19,7 @@ function collect(value: string, previous: string[]) {
 
 const options = program.opts();
 const sources = options.sourcesDir as string[];
+const namedExportsFiles = options.namedExportsFiles as string[];
 const root = path.resolve(deepestSharedRoot(sources))
 const configPath = findConfig(root)
 if (!configPath) {
@@ -25,7 +27,14 @@ if (!configPath) {
   process.exit(1);
 }
 
-const patterns = sources.map(arg => path.join(arg, '**/*.ts'));
-const dts = generate(globSync(patterns), configPath);
+const cwd = process.cwd();
+const patterns = sources
+  .map(arg => path.isAbsolute(arg) ? arg : path.resolve(cwd, arg))
+  .map(arg => path.join(arg, '**/*.ts'));
+const namedExportsPatterns = namedExportsFiles
+  .map(arg => path.isAbsolute(arg) ? arg : path.resolve(cwd, arg))
+
+const dts = generate(globSync(patterns), configPath, globSync(namedExportsPatterns));
+
 const dtsFilePath = path.join(options.outputDir, 'google.script.d.ts');
 fs.writeFileSync(dtsFilePath, dts, { encoding: 'utf8' });
