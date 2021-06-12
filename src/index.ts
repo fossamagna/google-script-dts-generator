@@ -90,7 +90,9 @@ const createVisitor = (program: ts.Program, context: Context) => {
 }
 
 const createDomMethod = (name: string, callSignature: ts.Signature, context: Context) => {
-  const parameters = callSignature.parameters.map(p => toDomParameter(p, context));
+  const parameters = callSignature.parameters
+  .map(p => toDomParameter(p, context))
+  .filter((dp): dp is dom.Parameter => !!dp);
   const method = dom.create.method(name, parameters, dom.type.void);
   return method;
 }
@@ -180,13 +182,17 @@ const isNamedExport = (modifiers?: ts.ModifiersArray) => {
     && modifiers?.every(modfifier => modfifier.kind !== ts.SyntaxKind.DefaultKeyword)
 }
 
-function toDomParameter(symbol: ts.Symbol, context: Context): dom.Parameter {
+function toDomParameter(symbol: ts.Symbol, context: Context): dom.Parameter | undefined {
   const name = symbol.name;
-  const type = context.checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);  
-  return dom.create.parameter(name, toDomType(type, context));
+  const type = context.checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
+  const domType = toDomType(type, context);
+  if (!domType) {
+    return;
+  }
+  return dom.create.parameter(name, domType);
 }
 
-function toDomType(type: ts.Type, context: Context): dom.Type {
+function toDomType(type: ts.Type, context: Context): dom.Type | undefined {
   const flags = type.getFlags();
   if (flags & ts.TypeFlags.Boolean) {
     return dom.type.boolean
@@ -198,17 +204,24 @@ function toDomType(type: ts.Type, context: Context): dom.Type {
     return dom.type.number
   }
   if (type.isUnion()) {
-    return dom.create.union(type.types.map(t => toDomType(t, context)));
+    return dom.create.union(
+      type.types
+      .map(t => toDomType(t, context))
+      .filter((dp): dp is dom.Type => !!dp)
+    );
   }
   if (type.isClassOrInterface()) {
     const name = type.symbol.getName();
     const namedTypeRef = dom.create.namedTypeReference(type.symbol.getName());
     const members = type.symbol.members!;
     const properties: dom.ObjectTypeMember[] = [];
-    members.forEach((v, k) => {
+    members && members.forEach((v, k) => {
       const t = context.checker.getTypeOfSymbolAtLocation(v, v.valueDeclaration);
-      const property = dom.create.property(k.toString(), toDomType(t, context));
-      properties.push(property);
+      const domType = toDomType(t, context);
+      if (domType) {
+        const property = dom.create.property(k.toString(), domType);
+        properties.push(property);
+      }
     })
     const interfaceDom = dom.create.interface(name);
     interfaceDom.members.push(...properties);
@@ -216,7 +229,11 @@ function toDomType(type: ts.Type, context: Context): dom.Type {
     return namedTypeRef;
   }
   if (type.isIntersection()) {
-    return dom.create.intersection(type.types.map(t => toDomType(t, context)))
+    return dom.create.intersection(
+      type.types
+      .map(t => toDomType(t, context))
+      .filter((dp): dp is dom.Type => !!dp)
+    )
   }
   if (type.isStringLiteral()) {
     return dom.type.stringLiteral(type.value);
@@ -225,14 +242,21 @@ function toDomType(type: ts.Type, context: Context): dom.Type {
     return dom.type.numberLiteral(type.value);
   }
   if (flags & ts.TypeFlags.Object) {
-    const objectType = type as ts.ObjectType;
+    const objectType = type as ts.ObjectType;    
     if (objectType.objectFlags & ts.ObjectFlags.Anonymous) {
       const members = objectType.symbol.members!;
       const properties: dom.ObjectTypeMember[] = [];
-      members.forEach((v, k) => {
+      const [callSignature] = type.getCallSignatures();
+      if (callSignature) { // is Function
+        return;
+      }
+      members && members.forEach((v, k) => {
         const t = context.checker.getTypeOfSymbolAtLocation(v, v.valueDeclaration);
-        const property = dom.create.property(k.toString(), toDomType(t, context));
-        properties.push(property);
+        const domType = toDomType(t, context);
+        if (domType) {
+          const property = dom.create.property(k.toString(), domType);
+          properties.push(property);
+        }
       })
       return dom.create.objectType(properties);
     }
