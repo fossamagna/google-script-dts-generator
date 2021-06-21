@@ -97,7 +97,7 @@ const createDomMethod = (name: string, callSignature: ts.Signature, context: Con
   return method;
 }
 
-export const generate = (filenames: string[], configPath: string, namedExportsFiles: string[]): string =>  {
+export const generate = (filenames: string[], configPath: string, namedExportsFiles: string[], endpointsOnly: boolean = false): string =>  {
   const result = ts.readConfigFile(configPath, ts.sys.readFile);
   const config = ts.parseJsonConfigFileContent(
     result.config,
@@ -115,16 +115,16 @@ export const generate = (filenames: string[], configPath: string, namedExportsFi
       source.statements.map(s => visitor(s));
     }
   });
-  return generateDts(context);
+  return generateDts(context, endpointsOnly)
 }
 
-const generateDts = (context: Context) => {
-  const irun = generateIRunDts(context.methods);
+const generateDts = (context: Context, endpointsOnly = false) => {
+  const publicEndpoints = endpointsOnly ? generatePublicEndpointsDts(context.methods): generateIRunDts(context.methods);
   const interfaces: string[] = [];
   for (const i of context.interfaces) {
     interfaces.push(dom.emit(i, {rootFlags: dom.ContextFlags.InAmbientNamespace}));
   }
-  return googleScriptDts(dom.emit(irun, {rootFlags: dom.ContextFlags.InAmbientNamespace}), interfaces);
+  return googleScriptDts(dom.emit(publicEndpoints, {rootFlags: dom.ContextFlags.InAmbientNamespace}), interfaces, endpointsOnly);
 }
 
 const generateIRunDts = (methods: dom.ObjectTypeMember[]) => {
@@ -134,6 +134,12 @@ const generateIRunDts = (methods: dom.ObjectTypeMember[]) => {
   irun.members.push(generateWithSuccessHandlerDts());
   irun.members.push(generateWithUserObjectDts());
   return irun;
+}
+
+const generatePublicEndpointsDts = (methods: dom.ObjectTypeMember[]) => {
+  const publicEndpoints = dom.create.interface('PublicEndpoints');
+  publicEndpoints.members.push(...methods);
+  return publicEndpoints;
 }
 
 const generateWithFailureHandlerDts = () => {

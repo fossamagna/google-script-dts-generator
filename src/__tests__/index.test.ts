@@ -149,4 +149,16 @@ describe('generate', () => {
     const dts = generate(fixtures, configPath, namedExportsFiles);
     expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'interface-parameters.d.ts'), { encoding: 'utf8' }));
   });
+
+  it('endpoints only when use endpointsOnly option', () => {
+    const fixtures = [
+      path.join(fixturesDir, 'interface-parameters.ts')
+    ];
+    const namedExportsFiles = [
+      path.join(fixturesDir, 'interface-parameters.ts')
+    ];
+    const configPath = path.join(fixturesDir, 'tsconfig.json');
+    const dts = generate(fixtures, configPath, namedExportsFiles, true);
+    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'interface-parameters-public-endpoints.d.ts'), { encoding: 'utf8' }));
+  });
 });
