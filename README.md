@@ -83,6 +83,7 @@ $ google-script-dts-generator --sourcesDir server --outputDir client
 * [`--sourcesDir <sources>`](#--sourcesDir-sources)
 * [`--outputDir <outputDir>`](#--outputDir-outputDir)
 * [`--namedExportsFiles <glob>`](#--namedExportsFiles-glob)
+* [`--endpointsOnly`](#--endpointsOnly)
 
 #### `--sourcesDir <sources>`
 
@@ -106,6 +107,27 @@ A glob path pattern to generates a client-side TypeScript declaration (.d.ts) fr
 
 ```sh
 $ google-script-dts-generator --outputDir ./example/client --sourcesDir ./example/server --namedExportsFiles './example/server/**/*.ts'
+```
+
+### `--endpointsOnly`
+
+When use [@types/google.script.client-side](https://www.npmjs.com/package/@types/google.script.client-side), User needs define specify functions as PublicEndpoints.
+google-script-dts-generator support generate only PublicEndpoint interfaces.
+
+```
+yarn google-script-dts-generator -s ./src/server/ -o ./src/client/ --namedExportsFiles "./src/server/**/*.ts" --endpointsOnly
+```
+
+Output:
+```ts
+declare namespace google {
+  namespace script {
+    interface PublicEndpoints {
+        doGet(): void;
+        myFunction(param1: string, param2: boolean): void;
+    }
+  }
+}
 ```
 
 [npm-image]: https://badge.fury.io/js/google-script-dts-generator.svg
