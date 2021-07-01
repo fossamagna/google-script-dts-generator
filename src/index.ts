@@ -7,7 +7,8 @@ class Context {
   readonly checker: ts.TypeChecker;
   methods: dom.ObjectTypeMember[] = [];
   _interfaces: Map<string, dom.InterfaceDeclaration> = new Map();
-  namedExportsFiles: string[] = [];
+  readonly namedExportsFiles: string[] = [];
+  readonly nonVoidReturnType: boolean;
   
   registerInterface(name: string, itrf: dom.InterfaceDeclaration) {
     if (this._interfaces.has(name)) {
@@ -24,9 +25,10 @@ class Context {
     return this.namedExportsFiles.includes(node.getSourceFile().fileName);
   }
 
-  constructor(checker: ts.TypeChecker, namedExportsFiles: string[]) {
+  constructor(checker: ts.TypeChecker, namedExportsFiles: string[], nonVoidReturnType = false) {
     this.checker = checker;
     this.namedExportsFiles = namedExportsFiles;
+    this.nonVoidReturnType = nonVoidReturnType;
   }
 }
 
@@ -92,12 +94,22 @@ const createVisitor = (program: ts.Program, context: Context) => {
 const createDomMethod = (name: string, callSignature: ts.Signature, context: Context) => {
   const parameters = callSignature.parameters
   .map(p => toDomParameter(p, context))
-  .filter((dp): dp is dom.Parameter => !!dp);
-  const method = dom.create.method(name, parameters, dom.type.void);
+  .filter((dp): dp is dom.Parameter => !!dp);  
+  const domReturnType = context.nonVoidReturnType 
+    ? toDomType(callSignature.getReturnType(), context) || dom.type.void
+    : dom.type.void;
+  const method = dom.create.method(name, parameters, domReturnType);
   return method;
 }
 
-export const generate = (filenames: string[], configPath: string, namedExportsFiles: string[], endpointsOnly: boolean = false): string =>  {
+export type GenerateOptions = {
+  namedExportsFiles?: string[];
+  endpointsOnly?: boolean;
+  nonVoidReturnType?: boolean;
+}
+
+export const generate = (filenames: string[], configPath: string, options: GenerateOptions = {namedExportsFiles: [], endpointsOnly: false, nonVoidReturnType: false}): string =>  {
+  const { namedExportsFiles = [], endpointsOnly = false, nonVoidReturnType = false } = options;
   const result = ts.readConfigFile(configPath, ts.sys.readFile);
   const config = ts.parseJsonConfigFileContent(
     result.config,
@@ -107,7 +119,7 @@ export const generate = (filenames: string[], configPath: string, namedExportsFi
     configPath
   );
   const program = ts.createProgram(filenames, config.options);
-  const context = new Context(program.getTypeChecker(), namedExportsFiles);
+  const context = new Context(program.getTypeChecker(), namedExportsFiles, nonVoidReturnType);
   const visitor = createVisitor(program, context);
   filenames.forEach(filename => {
     const source = program.getSourceFile(filename);
@@ -208,6 +220,12 @@ function toDomType(type: ts.Type, context: Context): dom.Type | undefined {
   }
   if (flags & ts.TypeFlags.Number) {
     return dom.type.number
+  }
+  if (flags & ts.TypeFlags.Undefined) {
+    return dom.type.undefined
+  }
+  if (flags & ts.TypeFlags.Null) {
+    return dom.type.null
   }
   if (type.isUnion()) {
     return dom.create.union(

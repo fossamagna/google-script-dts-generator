@@ -12,6 +12,7 @@ program
   .requiredOption('-o, --outputDir <outputDir>', 'dts file output directory')
   .option('--namedExportsFiles <glob>', 'A glob path pattern to generates a client-side TypeScript declaration (.d.ts) from named exports', collect, [])
   .option('--endpointsOnly', 'generate only PublicEndpoint interfaces', false)
+  .option('--nonVoidReturnType', 'generate return type of server-side function as return type of client-side function.', false)
   .parse(process.argv);
 
 function collect(value: string, previous: string[]) {
@@ -21,7 +22,8 @@ function collect(value: string, previous: string[]) {
 const options = program.opts();
 const sources = options.sourcesDir as string[];
 const namedExportsFiles = options.namedExportsFiles as string[];
-const endpointsOnly = options.endpointsOnly;
+const endpointsOnly = !!options.endpointsOnly;
+const nonVoidReturnType = !!options.nonVoidReturnType;
 const root = path.resolve(deepestSharedRoot(sources))
 const configPath = findConfig(root)
 if (!configPath) {
@@ -36,7 +38,12 @@ const patterns = sources
 const namedExportsPatterns = namedExportsFiles
   .map(arg => path.isAbsolute(arg) ? arg : path.resolve(cwd, arg))
 
-const dts = generate(globSync(patterns), configPath, globSync(namedExportsPatterns), endpointsOnly);
+const generateOptions = {
+  namedExportsFiles: globSync(namedExportsPatterns),
+  endpointsOnly,
+  nonVoidReturnType
+}
+const dts = generate(globSync(patterns), configPath, generateOptions);
 
 const dtsFilePath = path.join(options.outputDir, 'google.script.d.ts');
 fs.writeFileSync(dtsFilePath, dts, { encoding: 'utf8' });

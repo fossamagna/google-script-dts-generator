@@ -9,6 +9,10 @@
   "author": "fossamagna",
   "license": "MIT",
   "devDependencies": {
+    "@types/google.script.client-side": "^0.1.1",
     "typescript": "4.3.4"
+  },
+  "dependencies": {
+    "gas-client": "^1.0.0-pr.2"
   }
 }

@@ -84,6 +84,7 @@ $ google-script-dts-generator --sourcesDir server --outputDir client
 * [`--outputDir <outputDir>`](#--outputDir-outputDir)
 * [`--namedExportsFiles <glob>`](#--namedExportsFiles-glob)
 * [`--endpointsOnly`](#--endpointsOnly)
+* [`--nonVoidReturnType`](#--nonVoidReturnType)
 
 #### `--sourcesDir <sources>`
 
@@ -109,7 +110,7 @@ A glob path pattern to generates a client-side TypeScript declaration (.d.ts) fr
 $ google-script-dts-generator --outputDir ./example/client --sourcesDir ./example/server --namedExportsFiles './example/server/**/*.ts'
 ```
 
-### `--endpointsOnly`
+#### `--endpointsOnly`
 
 When use [@types/google.script.client-side](https://www.npmjs.com/package/@types/google.script.client-side), User needs define specify functions as PublicEndpoints.
 google-script-dts-generator support generate only PublicEndpoint interfaces.
@@ -128,6 +129,42 @@ declare namespace google {
     }
   }
 }
+```
+
+#### `--nonVoidReturnType`
+
+generate return type of server-side function as return type of client-side function.
+This option assumed that using in combination with [gas-client](https://www.npmjs.com/package/gas-client).
+
+> Note: Use gas-client@1.0.0-pr.2 or later
+
+```
+yarn google-script-dts-generator -s ./src/server/ -o ./src/client/ --namedExportsFiles "./src/server/**/*.ts" --endpointsOnly --nonVoidReturnType
+```
+
+Output:
+```ts
+declare namespace google {
+    /**
+     * Methods available to Google Apps Script
+     */
+    namespace script {
+        interface PublicEndpoints {
+            helloWorld(): string;
+            echo(message: string): string;
+        }
+    }
+}
+```
+
+client.ts
+```ts
+import { GASClient } from 'gas-client';
+
+const { serverFunctions } = new GASClient<google.script.PublicEndpoints>();
+serverFunctions.echo("hello gas")
+    .then((s) => console.log(s))
+    .catch(e => console.error(e));
 ```
 
 [npm-image]: https://badge.fury.io/js/google-script-dts-generator.svg

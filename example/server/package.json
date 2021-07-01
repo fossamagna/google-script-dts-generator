@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dts-gen": "node ../../dist/bin/dts-gen.js -s . -o ../client"
+    "dts-gen": "node ../../dist/bin/dts-gen.js -s ./ -o ../client/ --namedExportsFiles './hello/*.ts' --endpointsOnly --nonVoidReturnType"
   },
   "author": "fossamagna",
   "license": "MIT",
