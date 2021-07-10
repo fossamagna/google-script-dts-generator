@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@types/google.script.client-side@^0.1.1":
+"@types/google.script.client-side@0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@types/google.script.client-side/-/google.script.client-side-0.1.1.tgz#c54a208442b66ab9ac049f20759b1f8baebf20b9"
   integrity sha512-nngMZRiXpKwzFUcIQjhmLiZTHYGMS3mEcg/FlydOnbGKOkc39JCLxykz7AjsR6OL5Vi6But0/TqQt95zn7Bh+g==
