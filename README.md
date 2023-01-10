@@ -61,7 +61,7 @@ declare namespace google {
 ## Installation
 
 ```sh
-$ npm install gas-webpack-plugin --save-dev
+$ npm install google-script-dts-generator --save-dev
 ```
 
 or 
