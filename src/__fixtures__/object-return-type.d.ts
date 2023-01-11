@@ -4,7 +4,7 @@ declare namespace google {
      */
     namespace script {
         interface PublicEndpoints {
-            [key: string]: (...args: unknown[])=>unknown;
+            [key: string]: (...args: any[])=>any;
             objectReturnFunc(): {
                 attr1: string;
                 attr2: number;
