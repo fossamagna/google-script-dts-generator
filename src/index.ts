@@ -150,6 +150,22 @@ const generateIRunDts = (methods: dom.ObjectTypeMember[]) => {
 
 const generatePublicEndpointsDts = (methods: dom.ObjectTypeMember[]) => {
   const publicEndpoints = dom.create.interface('PublicEndpoints');
+  publicEndpoints.members.push(
+    dom.create.indexSignature(
+      "key",
+      "string",
+      dom.create.functionType(
+        [
+          dom.create.parameter(
+            "args",
+            dom.create.array("any"),
+            dom.ParameterFlags.Rest
+          ),
+        ],
+        "any"
+      )
+    )
+  );
   publicEndpoints.members.push(...methods);
   return publicEndpoints;
 }

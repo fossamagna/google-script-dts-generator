@@ -4,6 +4,7 @@ declare namespace google {
      */
     namespace script {
         interface PublicEndpoints {
+            [key: string]: (...args: any[])=>any;
             interfaceParamsFunc(params: IParams): void;
         }
 
