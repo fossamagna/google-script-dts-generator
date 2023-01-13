@@ -1,6 +1,7 @@
 import { generate } from '../index';
 import * as path from 'path';
 import * as fs from 'fs';
+import { expect, describe, it } from '@jest/globals';
 
 const fixturesDir = path.join(__dirname, '../__fixtures__');
 
