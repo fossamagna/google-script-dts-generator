@@ -1,9 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import glob from 'glob';
+import * as glob from 'glob';
 
 export function globSync(patterns: string[]): string[] {
-  return patterns.reduce((acc, pattern) => acc.concat(glob.sync(pattern)), [] as string[])
+  return patterns.reduce((acc, pattern) => acc.concat(glob.globSync([pattern])), [] as string[])
 }
 
 export function findConfig(
