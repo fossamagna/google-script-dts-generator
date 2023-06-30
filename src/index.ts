@@ -211,12 +211,15 @@ const isGlobalAssignmentExpression = (node: ts.Node): node is ts.ExpressionState
   return false;
 }
 
-const isNamedExport = (modifiers?: ts.ModifiersArray) => {
+const isNamedExport = (modifiers?: ts.NodeArray<ts.ModifierLike>) => {
   return modifiers?.some(modfifier => modfifier.kind === ts.SyntaxKind.ExportKeyword) 
     && modifiers?.every(modfifier => modfifier.kind !== ts.SyntaxKind.DefaultKeyword)
 }
 
 function toDomParameter(symbol: ts.Symbol, context: Context): dom.Parameter | undefined {
+  if (!symbol.valueDeclaration) {
+    return;
+  }
   const name = symbol.name;
   const type = context.checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
   const domType = toDomType(type, context);
@@ -276,11 +279,13 @@ function toDomType(type: ts.Type, context: Context): dom.Type | undefined {
         return;
       }
       members && members.forEach((v, k) => {
-        const t = context.checker.getTypeOfSymbolAtLocation(v, v.valueDeclaration);
-        const domType = toDomType(t, context);
-        if (domType) {
-          const property = dom.create.property(k.toString(), domType);
-          properties.push(property);
+        if (v.valueDeclaration) {
+          const t = context.checker.getTypeOfSymbolAtLocation(v, v.valueDeclaration);
+          const domType = toDomType(t, context);
+          if (domType) {
+            const property = dom.create.property(k.toString(), domType);
+            properties.push(property);
+          }
         }
       })
       return dom.create.objectType(properties);
