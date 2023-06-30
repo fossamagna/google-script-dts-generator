@@ -8,18 +8,18 @@
   integrity sha512-nngMZRiXpKwzFUcIQjhmLiZTHYGMS3mEcg/FlydOnbGKOkc39JCLxykz7AjsR6OL5Vi6But0/TqQt95zn7Bh+g==
 
 gas-client@^1.0.0-pr.2:
-  version "1.0.0-pr.2"
-  resolved "https://registry.yarnpkg.com/gas-client/-/gas-client-1.0.0-pr.2.tgz#0f1b610200ab80bce63d4ff3ee7b200b387501e5"
-  integrity sha512-mauCRLapdarOcyYB7EcR2YX3WvJ4ZTWfbQGkYX3j965Qsp6AU4K8C/FrpSyk4BlNnXGOIfsiH6gR3j1pIqwmyw==
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/gas-client/-/gas-client-1.1.1.tgz#0cde9de6fb285a5a84ba5553998202eb149787bc"
+  integrity sha512-2ALu3Go94uGI/KZy06sJmpXYVPOYLTR3Jd6s8+KAU9OlqxGfJ/1OiEXEeo8SU9dHEcnPEQjgmQQ2lUU9nu35hw==
   dependencies:
-    uuid "^8.2.0"
+    uuid "^9.0.0"
 
 typescript@4.9.5:
   version "4.9.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.5.tgz#095979f9bcc0d09da324d58d03ce8f8374cbe65a"
   integrity sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==
 
-uuid@^8.2.0:
-  version "8.3.2"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
-  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
+uuid@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.0.tgz#592f550650024a38ceb0c562f2f6aa435761efb5"
+  integrity sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==
