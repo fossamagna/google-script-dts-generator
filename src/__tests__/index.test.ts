@@ -152,6 +152,16 @@ describe('generate', () => {
     expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'class-parameters.d.ts'), { encoding: 'utf8' }));
   });
 
+  it('support exteneded interface parameters', () => {
+    const fixtures = [path.join(fixturesDir, 'interface-extended-parameters.ts')];
+    const namedExportsFiles = [path.join(fixturesDir, 'interface-extended-parameters.ts')];
+    const configPath = path.join(fixturesDir, 'tsconfig.json');
+    const dts = generate(fixtures, configPath, { namedExportsFiles });
+    expect(dts).toBe(
+      fs.readFileSync(path.join(fixturesDir, 'interface-extended-parameters.d.ts'), { encoding: 'utf8' })
+    );
+  });
+
   it('support interface parameters', () => {
     const fixtures = [
       path.join(fixturesDir, 'interface-parameters.ts')

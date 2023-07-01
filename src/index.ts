@@ -211,12 +211,15 @@ const isGlobalAssignmentExpression = (node: ts.Node): node is ts.ExpressionState
   return false;
 }
 
-const isNamedExport = (modifiers?: ts.ModifiersArray) => {
+const isNamedExport = (modifiers?: ts.NodeArray<ts.ModifierLike>) => {
   return modifiers?.some(modfifier => modfifier.kind === ts.SyntaxKind.ExportKeyword) 
     && modifiers?.every(modfifier => modfifier.kind !== ts.SyntaxKind.DefaultKeyword)
 }
 
 function toDomParameter(symbol: ts.Symbol, context: Context): dom.Parameter | undefined {
+  if (!symbol.valueDeclaration) {
+    return;
+  }
   const name = symbol.name;
   const type = context.checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
   const domType = toDomType(type, context);
@@ -251,22 +254,7 @@ function toDomType(type: ts.Type, context: Context): dom.Type | undefined {
     );
   }
   if (type.isClassOrInterface()) {
-    const name = type.symbol.getName();
-    const namedTypeRef = dom.create.namedTypeReference(type.symbol.getName());
-    const members = type.symbol.members!;
-    const properties: dom.ObjectTypeMember[] = [];
-    members && members.forEach((v, k) => {
-      const t = context.checker.getTypeOfSymbolAtLocation(v, v.valueDeclaration);
-      const domType = toDomType(t, context);
-      if (domType) {
-        const property = dom.create.property(k.toString(), domType);
-        properties.push(property);
-      }
-    })
-    const interfaceDom = dom.create.interface(name);
-    interfaceDom.members.push(...properties);
-    context.registerInterface(name, interfaceDom);
-    return namedTypeRef;
+    return createInterfaceDom(type, context);
   }
   if (type.isIntersection()) {
     return dom.create.intersection(
@@ -291,11 +279,13 @@ function toDomType(type: ts.Type, context: Context): dom.Type | undefined {
         return;
       }
       members && members.forEach((v, k) => {
-        const t = context.checker.getTypeOfSymbolAtLocation(v, v.valueDeclaration);
-        const domType = toDomType(t, context);
-        if (domType) {
-          const property = dom.create.property(k.toString(), domType);
-          properties.push(property);
+        if (v.valueDeclaration) {
+          const t = context.checker.getTypeOfSymbolAtLocation(v, v.valueDeclaration);
+          const domType = toDomType(t, context);
+          if (domType) {
+            const property = dom.create.property(k.toString(), domType);
+            properties.push(property);
+          }
         }
       })
       return dom.create.objectType(properties);
@@ -306,3 +296,41 @@ function toDomType(type: ts.Type, context: Context): dom.Type | undefined {
   console.warn(`${ts.TypeFlags[type.getFlags()]} is unsupported type. it is declarated as any type.`);
   return dom.type.any;
 }
+
+const createInterfaceDom = (
+  type: ts.Type,
+  context: Context
+): dom.InterfaceDeclaration | dom.ClassDeclaration | undefined => {
+  const name = type.symbol.getName();
+  const interfaceDom = dom.create.interface(name);
+  const members = type.symbol.members!;
+  const properties: dom.ObjectTypeMember[] = [];
+  members &&
+    members.forEach((v, k) => {
+      if (v.valueDeclaration) {
+        const t = context.checker.getTypeOfSymbolAtLocation(v, v.valueDeclaration);
+        const domType = toDomType(t, context);
+        if (domType) {
+          const property = dom.create.property(k.toString(), domType);
+          properties.push(property);
+        }
+      }
+    });
+  const baseTypesRef: dom.ObjectTypeReference[] = [];
+  const baseTypes = type.getBaseTypes();
+  if (baseTypes) {
+    baseTypes.forEach((baseType) => {
+      baseType.symbol.declarations?.forEach((declaration) => {
+        const t = context.checker.getTypeAtLocation(declaration);
+        const domType = createInterfaceDom(t, context);
+        if (domType) {
+          baseTypesRef.push(domType);
+        }
+      });
+    });
+  }
+  interfaceDom.members.push(...properties);
+  interfaceDom.baseTypes?.push(...baseTypesRef);
+  context.registerInterface(name, interfaceDom);
+  return interfaceDom;
+};
