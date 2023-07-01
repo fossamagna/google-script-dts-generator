@@ -111,7 +111,7 @@ $ google-script-dts-generator --outputDir ./example/client --sourcesDir ./exampl
 
 #### `--namedExportsFiles <glob>`
 
-A glob path pattern to generates a client-side TypeScript declaration (.d.ts) from named exports.
+A glob path pattern to generates a client-side TypeScript declaration (.d.ts) from named exports.  
 **Note**: Glob patterns should always use / as a path separator, even on Windows systems
 
 ```sh
