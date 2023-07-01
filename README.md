@@ -80,11 +80,18 @@ $ google-script-dts-generator --sourcesDir server --outputDir client
 
 ### Options
 
-* [`--sourcesDir <sources>`](#--sourcesDir-sources)
-* [`--outputDir <outputDir>`](#--outputDir-outputDir)
-* [`--namedExportsFiles <glob>`](#--namedExportsFiles-glob)
-* [`--endpointsOnly`](#--endpointsOnly)
-* [`--nonVoidReturnType`](#--nonVoidReturnType)
+- [google-script-dts-generator ](#google-script-dts-generator-)
+  - [About](#about)
+  - [Example](#example)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [CLI](#cli)
+    - [Options](#options)
+      - [`--sourcesDir <sources>`](#--sourcesdir-sources)
+      - [`--outputDir <outputDir>`](#--outputdir-outputdir)
+      - [`--namedExportsFiles <glob>`](#--namedexportsfiles-glob)
+      - [`--endpointsOnly`](#--endpointsonly)
+      - [`--nonVoidReturnType`](#--nonvoidreturntype)
 
 #### `--sourcesDir <sources>`
 
@@ -105,6 +112,7 @@ $ google-script-dts-generator --outputDir ./example/client --sourcesDir ./exampl
 #### `--namedExportsFiles <glob>`
 
 A glob path pattern to generates a client-side TypeScript declaration (.d.ts) from named exports.
+**Note**: Glob patterns should always use / as a path separator, even on Windows systems
 
 ```sh
 $ google-script-dts-generator --outputDir ./example/client --sourcesDir ./example/server --namedExportsFiles './example/server/**/*.ts'
