@@ -13,20 +13,21 @@ export const getSrcFiles = (sources: string[]): string[] => {
 export const getNamedExportsPatterns = (
   namedExportsFiles: string[]
 ): string[] => {
-  return globSync(getAbsolutePathGlobPatterns(namedExportsFiles));
+  const patterns = namedExportsFiles.map((arg) => {
+    return path.isAbsolute(arg) ? arg : convertAbsPath(arg);
+  });
+  return globSync(patterns);
 };
 
 export const getAbsolutePathGlobPatterns = (patterns: string[]): string[] => {
   return patterns.map((arg) => {
-    if (path.isAbsolute(arg)) {
-      return getPosixPath(arg);
-    } else {
-      const cwd = process.cwd();
-      const normalizeCwd = getPosixPath(cwd);
-      const absPath = [normalizeCwd, arg].join(path.posix.sep);
-      return absPath;
-    }
+    return path.isAbsolute(arg) ? getPosixPath(arg) : convertAbsPath(arg);
   });
+};
+
+const convertAbsPath = (relativePath: string): string => {
+  const normalizeCwd = getPosixPath(process.cwd());
+  return [normalizeCwd, relativePath].join(path.posix.sep);
 };
 
 const getPosixPath = (filePath: string): string => {

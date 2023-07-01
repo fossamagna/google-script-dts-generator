@@ -213,7 +213,7 @@ describe('generate', () => {
   });
 });
 
-describe('util', () => {
+describe('treat backslash', () => {
   const baseDir = path.resolve(__dirname, '..');
   const baseTestDir = 'testdir';
   const testDirPath = 'a/[b]/c';
@@ -265,7 +265,7 @@ describe('util', () => {
     expect(paths[0]).toBe('c:/x/y/z/src');
   });
 
-  it('can treat backslash as escape', () => {
+  it('can treat backslash as escape(relative path)', () => {
     Object.defineProperty(process, 'platform', {
       value: 'win32',
     });
@@ -275,6 +275,20 @@ describe('util', () => {
       .spyOn(process, 'cwd')
       .mockReturnValue(cwd.split(path.posix.sep).join(path.win32.sep));
     const patterns = ['a/\\[b\\]/c/[a-e].ts'];
+    const files = getNamedExportsPatterns(patterns);
+    expect(files.length).toBe(2);
+  });
+
+  it('can treat backslash as escape(absolute path)', () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'win32',
+    });
+    process.chdir(path.join(baseDir, baseTestDir));
+    const cwd = process.cwd();
+    jest
+      .spyOn(process, 'cwd')
+      .mockReturnValue(cwd.split(path.posix.sep).join(path.win32.sep));
+    const patterns = [[cwd, 'a/\\[b\\]/c/[a-e].ts'].join(path.posix.sep)];
     const files = getNamedExportsPatterns(patterns);
     expect(files.length).toBe(2);
   });
