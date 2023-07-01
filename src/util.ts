@@ -2,8 +2,49 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as glob from 'glob';
 
-export function globSync(patterns: string[]): string[] {
-  return patterns.reduce((acc, pattern) => acc.concat(glob.globSync([pattern])), [] as string[])
+export const getSrcFiles = (sources: string[]): string[] => {
+  const patterns = getAbsolutePathGlobPatterns(sources).map((arg) => {
+    const posixPath = process.platform === 'win32' ? getPosixPath(arg) : arg;
+    return [posixPath, '**/*.ts'].join(path.posix.sep);
+  });
+  return globSync(patterns);
+};
+
+export const getNamedExportsPatterns = (
+  namedExportsFiles: string[]
+): string[] => {
+  return globSync(getAbsolutePathGlobPatterns(namedExportsFiles));
+};
+
+export const getAbsolutePathGlobPatterns = (patterns: string[]): string[] => {
+  return patterns.map((arg) => {
+    if (path.isAbsolute(arg)) {
+      return getPosixPath(arg);
+    } else {
+      const cwd = process.cwd();
+      const normalizeCwd = getPosixPath(cwd);
+      const absPath = [normalizeCwd, arg].join(path.posix.sep);
+      return absPath;
+    }
+  });
+};
+
+const getPosixPath = (filePath: string): string => {
+  if (process.platform === 'win32') {
+    return filePath.split(path.win32.sep).join(path.posix.sep);
+  } else {
+    return filePath;
+  }
+};
+
+function globSync(patterns: string[]): string[] {
+  return patterns.reduce((acc, pattern) => {
+    return acc.concat(
+      glob.globSync([pattern]).map((file) => {
+        return path.normalize(file);
+      })
+    );
+  }, [] as string[]);
 }
 
 export function findConfig(
