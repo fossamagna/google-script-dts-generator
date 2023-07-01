@@ -1,7 +1,20 @@
 import { generate } from '../index';
-import * as path from 'path';
+import {
+  getAbsolutePathGlobPatterns,
+  getNamedExportsPatterns,
+  getSrcFiles,
+} from '../util';
+import path from 'path';
 import * as fs from 'fs';
-import { expect, describe, it } from '@jest/globals';
+import {
+  expect,
+  describe,
+  it,
+  beforeAll,
+  afterEach,
+  afterAll,
+  jest,
+} from '@jest/globals';
 
 const fixturesDir = path.join(__dirname, '../__fixtures__');
 
@@ -207,5 +220,110 @@ describe('generate', () => {
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, {nonVoidReturnType: true, endpointsOnly: true});
     expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'interface-return-type.d.ts'), { encoding: 'utf8' }));
+  });
+});
+
+describe('treat backslash', () => {
+  const baseDir = path.resolve(__dirname, '..');
+  const baseTestDir = 'testdir';
+  const testDirPath = 'a/[b]/c';
+  const testDirFullPath = path.join(baseDir, baseTestDir, testDirPath);
+  const createFile = (fileName: string) => {
+    const filePath = path.join(testDirFullPath, fileName);
+    fs.writeFileSync(filePath, '', { encoding: 'utf-8' });
+  };
+
+  beforeAll(() => {
+    fs.mkdirSync(testDirFullPath, { recursive: true });
+    createFile('d.ts');
+    createFile('e.ts');
+    createFile('f.ts');
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  afterAll(() => {
+    fs.rmSync(path.join(baseDir, baseTestDir), {
+      recursive: true,
+      force: true,
+    });
+  });
+
+  it('can replace to the posix delimiters from the windows one(relative path)', () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'win32',
+    });
+    jest.spyOn(process, 'cwd').mockReturnValue('c:\\u01\\a\\b\\c');
+    jest.spyOn(path, 'isAbsolute').mockImplementation(path.win32.isAbsolute);
+    const testPath = './src';
+    const paths = getAbsolutePathGlobPatterns([testPath]);
+    expect(paths.length).toBe(1);
+    expect(paths[0]).toBe('c:/u01/a/b/c/./src');
+  });
+
+  it('can replace to the posix delimiters from the windows one(absolute path)', () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'win32',
+    });
+    jest.spyOn(process, 'cwd').mockReturnValue('c:\\u01\\a\\b\\c');
+    jest.spyOn(path, 'isAbsolute').mockImplementation(path.win32.isAbsolute);
+    const testPath = 'c:/x\\y\\z\\src';
+    const paths = getAbsolutePathGlobPatterns([testPath]);
+    expect(paths.length).toBe(1);
+    expect(paths[0]).toBe('c:/x/y/z/src');
+  });
+
+  it('can treat backslash as escape(relative path)', () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'win32',
+    });
+    process.chdir(path.join(baseDir, baseTestDir));
+    const cwd = process.cwd();
+    jest
+      .spyOn(process, 'cwd')
+      .mockReturnValue(cwd.split(path.posix.sep).join(path.win32.sep));
+    const patterns = ['a/\\[b\\]/c/[a-e].ts'];
+    const files = getNamedExportsPatterns(patterns);
+    expect(files.length).toBe(2);
+  });
+
+  it('can treat backslash as escape(absolute path)', () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'win32',
+    });
+    process.chdir(path.join(baseDir, baseTestDir));
+    const cwd = process.cwd();
+    jest
+      .spyOn(process, 'cwd')
+      .mockReturnValue(cwd.split(path.posix.sep).join(path.win32.sep));
+    const patterns = [[cwd, 'a/\\[b\\]/c/[a-e].ts'].join(path.posix.sep)];
+    const files = getNamedExportsPatterns(patterns);
+    expect(files.length).toBe(2);
+  });
+
+  it('support relative path with the backslash', () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'win32',
+    });
+    process.chdir(path.join(baseDir, baseTestDir));
+    const cwd = process.cwd();
+    jest
+      .spyOn(process, 'cwd')
+      .mockReturnValue(cwd.split(path.posix.sep).join(path.win32.sep));
+    const patterns = ['.\\a'];
+    const files = getSrcFiles(patterns);
+    expect(files.length).toBe(3);
+  });
+
+  it('support relative path with the slash', () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'linux',
+    });
+    process.chdir(path.join(baseDir, baseTestDir));
+    const patterns = ['./a'];
+    const files = getSrcFiles(patterns);
+    expect(files.length).toBe(3);
   });
 });

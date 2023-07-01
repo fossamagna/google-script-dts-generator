@@ -4,7 +4,12 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { opts, program } from 'commander';
 import { generate } from '..';
-import { findConfig, globSync, deepestSharedRoot } from '../util';
+import {
+  findConfig,
+  deepestSharedRoot,
+  getNamedExportsPatterns,
+  getSrcFiles,
+} from '../util';
 
 program
   .version(require('../../package.json').version)
@@ -31,19 +36,12 @@ if (!configPath) {
   process.exit(1);
 }
 
-const cwd = process.cwd();
-const patterns = sources
-  .map(arg => path.isAbsolute(arg) ? arg : path.resolve(cwd, arg))
-  .map(arg => path.join(arg, '**/*.ts'));
-const namedExportsPatterns = namedExportsFiles
-  .map(arg => path.isAbsolute(arg) ? arg : path.resolve(cwd, arg))
-
 const generateOptions = {
-  namedExportsFiles: globSync(namedExportsPatterns),
+  namedExportsFiles: getNamedExportsPatterns(namedExportsFiles),
   endpointsOnly,
   nonVoidReturnType
 }
-const dts = generate(globSync(patterns), configPath, generateOptions);
+const dts = generate(getSrcFiles(sources), configPath, generateOptions);
 
 const dtsFilePath = path.join(options.outputDir, 'google.script.d.ts');
 fs.writeFileSync(dtsFilePath, dts, { encoding: 'utf8' });
