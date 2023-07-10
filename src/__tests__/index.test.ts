@@ -6,15 +6,6 @@ import {
 import path from 'path';
 import fs from 'fs';
 import glob from 'glob';
-import {
-  expect,
-  describe,
-  it,
-  beforeAll,
-  afterEach,
-  afterAll,
-  jest,
-} from '@jest/globals';
 
 const fixturesDir = path.join(__dirname, '../__fixtures__');
 
