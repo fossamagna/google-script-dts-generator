@@ -1,11 +1,15 @@
 import indent from 'indent-string';
 
+const normalizeNewLine = (v: string) => {
+  return v.replace(/\r\n/g, '\n')
+}
+
 const format = (v: string, indentCount: number) => {
-  return indent(v.replace(/\r\n/g, '\n'), indentCount);
+  return indent(normalizeNewLine(v), indentCount);
 }
 
 export const googleScriptDts = (irun: string, interfaces: string[], endpointsOnly = false) => {
-  return `declare namespace google {
+  return normalizeNewLine(`declare namespace google {
     /**
      * Methods available to Google Apps Script
      */
@@ -15,7 +19,7 @@ ${interfaces.map(i => format(i, 8)).join('\n')}
 ${endpointsOnly ? '' : format(googleScriptMiscDts, 8)}
     }
 }
-`
+`);
 }
 
 const googleScriptMiscDts = `interface IUrlLocation {
