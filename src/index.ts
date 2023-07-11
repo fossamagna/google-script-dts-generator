@@ -22,7 +22,9 @@ class Context {
   }
 
   isNameExportTarget(node: ts.Node): boolean {
-    return this.namedExportsFiles.includes(node.getSourceFile().fileName);
+    return this.namedExportsFiles.includes(
+      path.normalize(node.getSourceFile().fileName)
+    );
   }
 
   constructor(checker: ts.TypeChecker, namedExportsFiles: string[], nonVoidReturnType = false) {
