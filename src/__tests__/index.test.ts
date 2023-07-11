@@ -29,7 +29,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'named-export-arrow-function.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('can detect named export function expression', () => {
@@ -41,7 +41,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'named-export-function-expression.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('can detect named export function statement', () => {
@@ -53,7 +53,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'named-export-function-statement.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('can detect named export', () => {
@@ -65,7 +65,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'named-export.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('can detect named export alias', () => {
@@ -77,7 +77,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'named-export-alias.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('can detect arrow function assginment to global object.', () => {
@@ -89,7 +89,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'arrow-function.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('can detect function-expression assginment to global object.', () => {
@@ -101,7 +101,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'function-expression.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('can detect identifier assginment to global object.', () => {
@@ -113,7 +113,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'identifier.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('support primitive parameters', () => {
@@ -125,7 +125,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'primitive-parameters.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('support object parameters', () => {
@@ -137,7 +137,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'object-parameters.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('support class parameters', () => {
@@ -149,7 +149,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'class-parameters.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('support exteneded interface parameters', () => {
@@ -157,9 +157,7 @@ describe('generate', () => {
     const namedExportsFiles = [path.join(fixturesDir, 'interface-extended-parameters.ts')];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(
-      fs.readFileSync(path.join(fixturesDir, 'interface-extended-parameters.d.ts'), { encoding: 'utf8' })
-    );
+    expect(dts).toMatchSnapshot();
   });
 
   it('support interface parameters', () => {
@@ -171,7 +169,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'interface-parameters.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('endpoints only when use endpointsOnly option', () => {
@@ -183,7 +181,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, { namedExportsFiles, endpointsOnly: true });
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'interface-parameters-public-endpoints.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('support primitive return type', () => {
@@ -192,7 +190,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, {nonVoidReturnType: true, endpointsOnly: true});
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'primitive-return-type.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('support object return type', () => {
@@ -201,7 +199,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, {nonVoidReturnType: true, endpointsOnly: true});
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'object-return-type.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('support class return type', () => {
@@ -210,7 +208,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, {nonVoidReturnType: true, endpointsOnly: true});
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'class-return-type.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 
   it('support interface return type', () => {
@@ -219,7 +217,7 @@ describe('generate', () => {
     ];
     const configPath = path.join(fixturesDir, 'tsconfig.json');
     const dts = generate(fixtures, configPath, {nonVoidReturnType: true, endpointsOnly: true});
-    expect(dts).toBe(fs.readFileSync(path.join(fixturesDir, 'interface-return-type.d.ts'), { encoding: 'utf8' }));
+    expect(dts).toMatchSnapshot();
   });
 });
 
