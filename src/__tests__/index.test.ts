@@ -1,20 +1,11 @@
 import { generate } from '../index';
 import {
-  getAbsolutePathGlobPatterns,
-  getNamedExportsPatterns,
+  getNamedExportsFiles,
   getSrcFiles,
 } from '../util';
 import path from 'path';
-import * as fs from 'fs';
-import {
-  expect,
-  describe,
-  it,
-  beforeAll,
-  afterEach,
-  afterAll,
-  jest,
-} from '@jest/globals';
+import fs from 'fs';
+import glob from 'glob';
 
 const fixturesDir = path.join(__dirname, '../__fixtures__');
 
@@ -221,107 +212,56 @@ describe('generate', () => {
   });
 });
 
-describe('treat backslash', () => {
-  const baseDir = path.resolve(__dirname, '..');
-  const baseTestDir = 'testdir';
-  const testDirPath = 'a/[b]/c';
-  const testDirFullPath = path.join(baseDir, baseTestDir, testDirPath);
-  const createFile = (fileName: string) => {
-    const filePath = path.join(testDirFullPath, fileName);
-    fs.writeFileSync(filePath, '', { encoding: 'utf-8' });
-  };
-
-  beforeAll(() => {
-    fs.mkdirSync(testDirFullPath, { recursive: true });
-    createFile('d.ts');
-    createFile('e.ts');
-    createFile('f.ts');
-  });
-
+describe('Support the Windows and linux Platform', () => {
+  const orgPlatform = process.platform;
   afterEach(() => {
     jest.restoreAllMocks();
-  });
 
-  afterAll(() => {
-    fs.rmSync(path.join(baseDir, baseTestDir), {
-      recursive: true,
-      force: true,
-    });
-  });
-
-  it('can replace to the posix delimiters from the windows one(relative path)', () => {
     Object.defineProperty(process, 'platform', {
-      value: 'win32',
+      value: orgPlatform,
     });
-    jest.spyOn(process, 'cwd').mockReturnValue('c:\\u01\\a\\b\\c');
-    jest.spyOn(path, 'isAbsolute').mockImplementation(path.win32.isAbsolute);
-    const testPath = './src';
-    const paths = getAbsolutePathGlobPatterns([testPath]);
-    expect(paths.length).toBe(1);
-    expect(paths[0]).toBe('c:/u01/a/b/c/./src');
+  });
+  it.each([
+    ['relative path', 'win32', 'c:\\x\\y\\z', '.\\src', ['c:/x/y/z/./src/**/*.ts']],
+    ['absolute path', 'win32', 'c:\\x\\y\\z', 'c:\\a\\b\\c\\src', ['c:/a/b/c/src/**/*.ts']],
+    ['relative path', 'linux', '/x/y/z', './src', ['/x/y/z/./src/**/*.ts']],
+    ['absolute path', 'linux', '/x/y/z', '/a/b/c/src', ['/a/b/c/src/**/*.ts']],
+  ])('Can get source code path(%s @%s)', (_title, platform, cwd, input, expected) => {
+    Object.defineProperty(process, 'platform', {
+      value: platform,
+    });
+
+    jest.spyOn(process, 'cwd').mockReturnValue(cwd);
+    if (orgPlatform !== 'win32' && platform === 'win32') {
+      jest.spyOn(path, 'isAbsolute').mockImplementation(path.win32.isAbsolute);
+    } else if (orgPlatform === 'win32' && platform !== 'win32') {
+      jest.spyOn(path, 'isAbsolute').mockImplementation(path.posix.isAbsolute);
+    }
+    const spyGlob = jest.spyOn(glob, 'globSync');
+    getSrcFiles([input]);
+    expect(spyGlob).toBeCalledTimes(1);
+    expect(spyGlob).lastCalledWith(expected);
   });
 
-  it('can replace to the posix delimiters from the windows one(absolute path)', () => {
+  it.each([
+    ['relative path', 'win32', 'c:\\x', 'a/\\[b\\]/c/[a-e].ts', ['c:/x/a/\\[b\\]/c/[a-e].ts']],
+    ['absolute path', 'win32', 'c:\\x', 'c:/a/\\[b\\]/c/[a-e].ts', ['c:/a/\\[b\\]/c/[a-e].ts']],
+    ['relative path', 'linux', '/x/y/z', 'a/\\[b\\]/c/[a-e].ts', ['/x/y/z/a/\\[b\\]/c/[a-e].ts']],
+    ['absolute path', 'linux', '/x/y/z', '/x/a/\\[b\\]/c/[a-e].ts', ['/x/a/\\[b\\]/c/[a-e].ts']],
+  ])('Can get namedExportFiles(%s @%s)', (_title, platform, cwd, input, expected) => {
     Object.defineProperty(process, 'platform', {
-      value: 'win32',
+      value: platform,
     });
-    jest.spyOn(process, 'cwd').mockReturnValue('c:\\u01\\a\\b\\c');
-    jest.spyOn(path, 'isAbsolute').mockImplementation(path.win32.isAbsolute);
-    const testPath = 'c:/x\\y\\z\\src';
-    const paths = getAbsolutePathGlobPatterns([testPath]);
-    expect(paths.length).toBe(1);
-    expect(paths[0]).toBe('c:/x/y/z/src');
-  });
 
-  it('can treat backslash as escape(relative path)', () => {
-    Object.defineProperty(process, 'platform', {
-      value: 'win32',
-    });
-    process.chdir(path.join(baseDir, baseTestDir));
-    const cwd = process.cwd();
-    jest
-      .spyOn(process, 'cwd')
-      .mockReturnValue(cwd.split(path.posix.sep).join(path.win32.sep));
-    const patterns = ['a/\\[b\\]/c/[a-e].ts'];
-    const files = getNamedExportsPatterns(patterns);
-    expect(files.length).toBe(2);
-  });
-
-  it('can treat backslash as escape(absolute path)', () => {
-    Object.defineProperty(process, 'platform', {
-      value: 'win32',
-    });
-    process.chdir(path.join(baseDir, baseTestDir));
-    const cwd = process.cwd();
-    jest
-      .spyOn(process, 'cwd')
-      .mockReturnValue(cwd.split(path.posix.sep).join(path.win32.sep));
-    const patterns = [[cwd, 'a/\\[b\\]/c/[a-e].ts'].join(path.posix.sep)];
-    const files = getNamedExportsPatterns(patterns);
-    expect(files.length).toBe(2);
-  });
-
-  it('support relative path with the backslash', () => {
-    Object.defineProperty(process, 'platform', {
-      value: 'win32',
-    });
-    process.chdir(path.join(baseDir, baseTestDir));
-    const cwd = process.cwd();
-    jest
-      .spyOn(process, 'cwd')
-      .mockReturnValue(cwd.split(path.posix.sep).join(path.win32.sep));
-    const patterns = ['.\\a'];
-    const files = getSrcFiles(patterns);
-    expect(files.length).toBe(3);
-  });
-
-  it('support relative path with the slash', () => {
-    Object.defineProperty(process, 'platform', {
-      value: 'linux',
-    });
-    process.chdir(path.join(baseDir, baseTestDir));
-    const patterns = ['./a'];
-    const files = getSrcFiles(patterns);
-    expect(files.length).toBe(3);
+    jest.spyOn(process, 'cwd').mockReturnValue(cwd);
+    if (orgPlatform !== 'win32' && platform === 'win32') {
+      jest.spyOn(path, 'isAbsolute').mockImplementation(path.win32.isAbsolute);
+    } else if (orgPlatform === 'win32' && platform !== 'win32') {
+      jest.spyOn(path, 'isAbsolute').mockImplementation(path.posix.isAbsolute);
+    }
+    const spyGlob = jest.spyOn(glob, 'globSync');
+    getNamedExportsFiles([input]);
+    expect(spyGlob).toBeCalledTimes(1);
+    expect(spyGlob).lastCalledWith(expected);
   });
 });

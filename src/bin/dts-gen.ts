@@ -7,7 +7,7 @@ import { generate } from '..';
 import {
   findConfig,
   deepestSharedRoot,
-  getNamedExportsPatterns,
+  getNamedExportsFiles,
   getSrcFiles,
 } from '../util';
 
@@ -37,7 +37,7 @@ if (!configPath) {
 }
 
 const generateOptions = {
-  namedExportsFiles: getNamedExportsPatterns(namedExportsFiles),
+  namedExportsFiles: getNamedExportsFiles(namedExportsFiles),
   endpointsOnly,
   nonVoidReturnType
 }
