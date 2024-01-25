@@ -14,7 +14,7 @@
   },
   "homepage": "https://github.com/fossamagna/google-script-dts-generator#readme",
   "dependencies": {
-    "commander": "^7.0.0",
+    "commander": "^11.0.0",
     "dts-dom": "~3.6.0",
     "glob": "^9.0.0",
     "indent-string": "^4.0.0",
