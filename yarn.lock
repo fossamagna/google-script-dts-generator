@@ -983,10 +983,10 @@
   dependencies:
     undici-types "~5.26.4"
 
-"@types/node@18.19.22":
-  version "18.19.22"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.22.tgz#f622f92514b897e6b09903e97c16a0db8e94689f"
-  integrity sha512-p3pDIfuMg/aXBmhkyanPshdfJuX5c5+bQjYLIikPLXAUycEogij/c50n/C+8XOA5L93cU4ZRXtn+dNQGi0IZqQ==
+"@types/node@18.19.31":
+  version "18.19.31"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.31.tgz#b7d4a00f7cb826b60a543cebdbda5d189aaecdcd"
+  integrity sha512-ArgCD39YpyyrtFKIqMDvjz79jto5fcI/SVUs2HwB+f0dAzq68yqOdyaSivLiLugSziTpNXLQrVb7RZFmdZzbhA==
   dependencies:
     undici-types "~5.26.4"
 
