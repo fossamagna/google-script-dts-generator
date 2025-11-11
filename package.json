@@ -16,7 +16,7 @@
   "dependencies": {
     "commander": "^7.0.0",
     "dts-dom": "~3.6.0",
-    "glob": "^9.0.0",
+    "glob": "^11.0.0",
     "indent-string": "^4.0.0",
     "typescript": "^5.0.0"
   },
