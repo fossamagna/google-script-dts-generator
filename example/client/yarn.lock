@@ -8,9 +8,9 @@
   integrity sha512-GCQUVOtRTm13ieBw64AlxRhNAZqK0T1ttFRGqCB80tdlvE72oXlPckYJjJaEeaNCAZJHVkvjOeXMkmKXaQ7ffw==
 
 gas-client@^1.0.0-pr.2:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/gas-client/-/gas-client-1.1.1.tgz#0cde9de6fb285a5a84ba5553998202eb149787bc"
-  integrity sha512-2ALu3Go94uGI/KZy06sJmpXYVPOYLTR3Jd6s8+KAU9OlqxGfJ/1OiEXEeo8SU9dHEcnPEQjgmQQ2lUU9nu35hw==
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/gas-client/-/gas-client-1.2.1.tgz#ff258247b3d54c2e195f05098a736cb5160cb571"
+  integrity sha512-+ApPQ2DaimtmG9dNRR/+uAOzVsYzlGJI+6zqWvsWH7k1hU3ui8+LQQouRcZwRqUt8auk8ctoK2e6L7kthOvETA==
   dependencies:
     uuid "^9.0.0"
 
@@ -20,6 +20,6 @@ typescript@5.7.3:
   integrity sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==
 
 uuid@^9.0.0:
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.0.tgz#592f550650024a38ceb0c562f2f6aa435761efb5"
-  integrity sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.1.tgz#e188d4c8853cc722220392c424cd637f32293f30"
+  integrity sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==
